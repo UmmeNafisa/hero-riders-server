@@ -20,6 +20,7 @@ async function run() {
         console.log('database connected successfully');
         const database = client.db('hero-riders');
         const ridersCollection = database.collection('riders')
+        const learnerCollection = database.collection('learner')
 
         app.get('/riders', async (req, res) => {
             const cursor = ridersCollection.find({});
@@ -51,6 +52,34 @@ async function run() {
                 licenseImage: licenseImageBuffer
             }
             const result = await ridersCollection.insertOne(rider);
+            res.json(result);
+        })
+
+        app.get('/drivingLearner', async (req, res) => {
+            const cursor = learnerCollection.find({});
+            const learners = await cursor.toArray();
+            res.json(learners);
+        });
+        app.post('/drivingLearner', async (req, res) => {
+            const name = req.body.name;
+            const email = req.body.email;
+            const contact = req.body.contact;
+            const address = req.body.address;
+            const age = req.body.age;
+            const vehicleType = req.body.vehicleType;
+
+            const encodedProfilePic = req.files.profileImage.data.toString('base64');
+            const profileImageBuffer = Buffer.from(encodedProfilePic, 'base64');
+            const encodedNidImage = req.files.nidImage.data.toString('base64');
+            const nidImageBuffer = Buffer.from(encodedNidImage, 'base64');
+
+            const learner = {
+                name,
+                email, contact, address, vehicleType, age,
+                profileImage: profileImageBuffer,
+                nidImage: nidImageBuffer,
+            }
+            const result = await learnerCollection.insertOne(learner);
             res.json(result);
         })
     }
